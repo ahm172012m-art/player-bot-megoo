@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Megoo Bot</title>
+<style>
+body{font-family:sans-serif;background:#111;color:#fff;padding:20px;max-width:500px;margin:auto}
+h1{text-align:center;color:#4ade80}
+input{width:100%;padding:12px;margin:8px 0;border-radius:10px;border:none;font-size:16px}
+button{width:100%;padding:12px;margin:6px 0;border:none;border-radius:10px;font-size:17px;font-weight:bold}
+.start{background:#22c55e;color:#fff}
+.stop{background:#ef4444;color:#fff}
+.chatbtn{background:#3b82f6;color:#fff}
+#log{background:#000;padding:12px;border-radius:10px;height:250px;overflow:auto;font-size:14px}
+.status{text-align:center;padding:10px;border-radius:10px;background:#222;margin:10px 0}
+</style>
+</head>
+<body>
+<h1>🤖 Megoo Bot</h1>
+<div class="status" id="status">الحالة: offline</div>
+<input id="host" placeholder="IP السيرفر مثال: play.example.com">
+<input id="port" placeholder="البورت مثال: 25565" value="25565">
+<input id="username" placeholder="اسم البوت" value="MegooBot">
+<button class="start" onclick="startBot()">تشغيل البوت ▶️</button>
+<button class="stop" onclick="stopBot()">إيقاف البوت ⏹️</button>
+<input id="msg" placeholder="اكتب رسالة للشات...">
+<button class="chatbtn" onclick="sendChat()">إرسال رسالة 💬</button>
+<h3>السجل:</h3>
+<div id="log"></div>
+<script>
+async function startBot(){
+  const host=document.getElementById('host').value;
+  const port=document.getElementById('port').value;
+  const username=document.getElementById('username').value;
+  await fetch('/api/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({host,port,username})});
+}
+async function stopBot(){ await fetch('/api/stop',{method:'POST'}); }
+async function sendChat(){
+  const message=document.getElementById('msg').value;
+  await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message})});
+  document.getElementById('msg').value='';
+}
+async function refresh(){
+  const r=await fetch('/api/status'); const d=await r.json();
+  document.getElementById('status').innerText='الحالة: '+d.status;
+  document.getElementById('log').innerHTML=d.log.map(x=>'<div>'+x+'</div>').join('');
+}
+setInterval(refresh,2000); refresh();
+</script>
+</body>
+</html>
